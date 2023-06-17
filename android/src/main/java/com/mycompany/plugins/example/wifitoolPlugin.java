@@ -6,17 +6,30 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+
+import com.getcapacitor.JSArray;
+
+
 @CapacitorPlugin(name = "wifitool")
 public class wifitoolPlugin extends Plugin {
 
-    private wifitool implementation = new wifitool();
+    private WifiTool wifiTool;
+
+    @Override
+    public void load() {
+        wifiTool = new WifiTool(getContext());
+    }
 
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
-        JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
-        call.resolve(ret);
+    public void listAvailableNetworks(PluginCall call) {
+        JSObject result = new JSObject();
+        JSArray networkList = new JSArray(wifiTool.listAvailableNetworks());
+        if (networkList != null) {
+            result.put("networks", networkList);
+            call.resolve(result);
+        } else {
+            call.reject("Failed to retrieve available networks.");
+        }
     }
+
 }
